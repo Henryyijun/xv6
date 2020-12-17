@@ -7,6 +7,8 @@
 #include "proc.h"
 #include "spinlock.h"
 
+
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -259,6 +261,13 @@ exit(void)
       if(p->state == ZOMBIE)
         wakeup1(initproc);
     }
+  }
+
+  //parent might be sleeping in join
+  if (curproc->parent == 0 && curproc->pthread != 0) {
+    wakeup1(curproc->pthread);
+  } else {
+    wakeup1(curproc->parent);
   }
 
   // Jump into the scheduler, never to return.
@@ -531,4 +540,87 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+
+int clone(void(*fcn)(void*), void* arg, void* stack) {
+  cprintf("in clone , stack start add = %p\n", stack);
+  struct proc* curproc = myproc();
+  struct proc* np;
+
+  if ((np = allocproc()) == 0) {
+    return -1;
+  }
+
+  np->pgdir = curproc->pgdir;
+  np->sz = curproc->sz;
+  np->pthread = curproc;
+  np->ustack = stack;
+  np->parent = 0;
+  *np->tf = *curproc->tf;
+
+  int * sp = stack + 4096 - 8;
+
+  np->tf->eip = (int)fcn;
+  np->tf->esp = (int)sp;
+  np->tf->ebp = (int)sp;
+  np->tf->eax = 0;
+
+  *(sp + 1) = (int)arg;
+  *sp = 0xffffffff;
+  for (int i = 0; i< NOFILE; i++) {
+    if (curproc->ofile[i]) {
+      np->ofile[i] = filedup(curproc->ofile[i]);
+    }
+  }
+
+  np->cwd = idup(curproc->cwd);
+
+  safestrcpy(np->name, curproc->name, sizeof(curproc->name));
+  int pid = np->pid;
+
+  acquire(&ptable.lock);
+  np->state = RUNNABLE;
+  release(&ptable.lock);
+
+  return pid;
+  
+}
+
+int join(int tid, void** stack) {
+  cprintf("in join , stack start add = %p\n", *stack);
+  struct proc* curproc = myproc();
+  struct proc* p;
+  int havekids;
+  acquire(&ptable.lock);
+  for(;;) {
+    havekids = 0;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+      if (p->pthread != curproc) {
+        continue;
+      }
+      havekids = 1;
+      if (p->state == ZOMBIE) {
+        *stack = p->ustack;
+        int pid = p->pid;
+        kfree(p->kstack);
+        p->state = 0;
+        p->pid = 0;
+        p->parent = 0;
+        p->pthread = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        release(&ptable.lock);
+        return pid;
+      }
+    }
+
+    if (!havekids || curproc->killed) {
+      release(&ptable.lock);
+      return -1;
+    }
+
+    sleep(curproc, &ptable.lock);
+  }
+  return 0;
 }
