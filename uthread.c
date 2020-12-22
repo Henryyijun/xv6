@@ -2,7 +2,7 @@
 #include "user.h"
 
 
-#define NTHREAD 4
+#define NTHREAD 64
 #define PGSIZE 4096
 
 struct {
@@ -59,7 +59,7 @@ int thread_create(void (*start_routine)(void*), void* arg) {
 int thread_join(void) {
     for (int i = 0; i < NTHREAD; i++) {
         if (threads[i].used == 1) {
-            int pid = join(&threads[i].ustack);
+            int pid = join(threads[i].pid, &threads[i].ustack);
             if (pid > 0) {
                 remove_thread(&pid);
                 return pid;

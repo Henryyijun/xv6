@@ -9,3 +9,21 @@ struct spinlock {
                      // that locked the lock.
 };
 
+#define MAX_SEM_NUM 128
+
+
+
+
+struct sem {
+  struct spinlock lock;
+  int used;
+  int resources;
+  int allocated;
+};
+struct  share_mem{
+    char buff[16][256];
+    int line_read;
+    int line_write;
+};
+extern struct sem sems[MAX_SEM_NUM];
+

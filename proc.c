@@ -544,7 +544,7 @@ procdump(void)
 
 
 int clone(void(*fcn)(void*), void* arg, void* stack) {
-  cprintf("in clone , stack start add = %p\n", stack);
+  //cprintf("in clone , stack start add = %p\n", stack);
   struct proc* curproc = myproc();
   struct proc* np;
 
@@ -588,7 +588,7 @@ int clone(void(*fcn)(void*), void* arg, void* stack) {
 }
 
 int join(int tid, void** stack) {
-  cprintf("in join , stack start add = %p\n", *stack);
+  //cprintf("in join , stack start add = %p\n", *stack);
   struct proc* curproc = myproc();
   struct proc* p;
   int havekids;
@@ -605,11 +605,14 @@ int join(int tid, void** stack) {
         int pid = p->pid;
         kfree(p->kstack);
         p->state = 0;
+        p->tid = 0;
         p->pid = 0;
         p->parent = 0;
         p->pthread = 0;
+        p->ustack = 0;
         p->name[0] = 0;
         p->killed = 0;
+        //*stack = p->retval;
         release(&ptable.lock);
         return pid;
       }
@@ -624,3 +627,16 @@ int join(int tid, void** stack) {
   }
   return 0;
 }
+
+void wakeup1p(void *chan) {
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < & ptable.proc[NPROC]; p++) {
+    if(p->state == SLEEPING && p->chan == chan) {
+      p->state = RUNNABLE;
+      break;
+    }    
+  }
+  release(&ptable.lock);
+}
+

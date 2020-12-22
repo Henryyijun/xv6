@@ -23,3 +23,11 @@
 
 #define SYS_clone  22
 #define SYS_join   23
+
+#define SYS_sem_create   24
+#define SYS_sem_free     25
+#define SYS_sem_p        26
+#define SYS_sem_v        27
+
+#define SYS_read_share  28
+#define SYS_write_share 29

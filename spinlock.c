@@ -124,3 +124,95 @@ popcli(void)
     sti();
 }
 
+
+/* sem*/
+
+/* share memory*/
+// struct  share_mem{
+//     char buff[16][256];
+//     int line_read;
+//     int line_write;
+// };
+struct sem sems[MAX_SEM_NUM];
+struct share_mem share;
+
+
+void init_sem(void) {
+  for (int i = 0; i < MAX_SEM_NUM; i++) {
+    initlock(&(sems[i].lock), "semaphore");
+    sems[i].allocated = 0;
+  }
+
+  
+}
+
+int sys_sem_create(void) {
+  int resources;
+  if (argint(0, &resources) < 0) {
+    return -1;
+  } 
+
+  for (int i = 0; i < MAX_SEM_NUM; i++) {
+    acquire(&sems[i].lock);
+    if (sems[i].allocated == 0) {
+      
+      sems[i].allocated = 1;
+      sems[i].resources = resources;
+      sems[i].used = 0;
+      release(&sems[i].lock);
+      return i;
+    }
+    release(&sems[i].lock);
+  }
+  return -1;
+    
+}
+
+int sys_sem_free(void) {
+  int i;
+  if(argint(0, &i) < 0)
+    return -1;
+  
+  if(i < 0 || i > MAX_SEM_NUM)  // 检查索引是否在范围内 
+    return -1;
+
+  acquire(&sems[i].lock);
+  if(sems[i].allocated == 1 && sems[i].used == 0) {
+    sems[i].allocated = 0;
+    //cprintf("free %d sem\n", i);
+  }
+  release(&sems[i].lock);
+  return 0;
+}
+
+int sys_sem_p(void) {
+  int i ;
+  if (argint(0, &i) < 0) {
+    return -1;
+  }
+  acquire(&sems[i].lock);
+  sems[i].resources--;
+  if (sems[i].resources < 0) {
+    sems[i].used++;
+    sleep(&sems[i], &sems[i].lock);
+  }
+  release(&sems[i].lock);
+  return 0;
+}
+
+
+int sys_sem_v() {
+  int i;
+  if (argint(0, &i) < 0) {
+    return -1;
+  }
+  acquire(&sems[i].lock);
+  sems[i].resources++;
+  if (sems[i].resources < 1) {
+    wakeup1p(&sems[i]);
+    sems[i].used--;
+  }
+  release(&sems[i].lock);
+  return 0;
+}
+

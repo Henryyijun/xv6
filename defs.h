@@ -9,6 +9,8 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
+struct share_mem;
+
 
 // bio.c
 void            binit(void);
@@ -120,7 +122,7 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
-
+void            wakeup1p(void*);
 int             clone(void (*fcn)(void*),void *arg, void *stack);
 int             join(int tid, void **retval);
 
@@ -135,6 +137,9 @@ void            initlock(struct spinlock*, char*);
 void            release(struct spinlock*);
 void            pushcli(void);
 void            popcli(void);
+void            init_sem(void);
+
+extern  struct share_mem share;
 
 // sleeplock.c
 void            acquiresleep(struct sleeplock*);

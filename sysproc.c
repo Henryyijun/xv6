@@ -110,3 +110,17 @@ int sys_join(void)
 
   return join(tid, retval);
 }
+
+struct share_mem* sys_read_share() {
+  return &share;
+}
+
+int sys_write_share() {
+  int n;
+  if (argint(0, &n) < 0) {
+    return -1;
+  }
+  
+  return n;
+}
+

@@ -31,3 +31,11 @@ SYSCALL(sleep)
 SYSCALL(uptime)
 SYSCALL(clone)
 SYSCALL(join)
+
+SYSCALL(sem_create)
+SYSCALL(sem_free)
+SYSCALL(sem_p)
+SYSCALL(sem_v)
+
+SYSCALL(read_share)
+SYSCALL(write_share)

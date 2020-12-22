@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "*.tcc": "c"
+        "*.tcc": "c",
+        "cstdlib": "cpp",
+        "memory": "cpp"
     }
 }

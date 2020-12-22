@@ -50,8 +50,11 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
 
-  struct proc* pthread;        //parent thread
-  void* ustack;                 //User thread stack
+  struct proc* pthread;        // parent thread
+  void* ustack;                // User thread stack
+  int tid;                     // thread id
+  void *retval;                // return address
+
 };
 
 
