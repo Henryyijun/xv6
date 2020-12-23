@@ -25,6 +25,7 @@ typedef struct N_THREADPOOL {
     int mutex;
     int cond;
     int n_threads;
+    int count;
 }n_thread_pool;
 
 void worker_thread(void* arg);

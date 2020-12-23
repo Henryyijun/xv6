@@ -26,7 +26,7 @@ void worker_thread(void* arg) {
     struct Arg a = *(struct Arg*)arg;
     n_worker* worker = a.worker;
     //int num = a.num;
-    int count = 0;
+
 
     while (1) {
         sem_p(worker->pool->mutex);
@@ -36,33 +36,32 @@ void worker_thread(void* arg) {
                 break;
             }
             //printf(1, "waiting!\n");
+            
             sem_v(worker->pool->mutex); /// ???
             sem_p(worker->pool->cond);
         }
 
-        if (worker->terminate == 1) {
-            sem_v(worker->pool->mutex);
-            break;
-        }
-
+        // if (worker->terminate == 1) {
+        //     sem_v(worker->pool->mutex);
+        //     break;
+        // }
+        
         n_job* job = worker->pool->jobs;
         if (job != NULL) {
-            job->job_func(job); 
+            
+            sem_p(worker->pool->mutex);
             LL_REMOVE(job, worker->pool->jobs);
-            count++;
-        }
-
+            worker->pool->count++;
+            sem_v(worker->pool->mutex);
+        }     
         sem_v(worker->pool->mutex);
-        printf(1, "aaaa\n");
-        if (job == NULL) 
-            continue;
-        
-        if (count == 8) {
+         
+        job->job_func(job);
+        if (worker->pool->count == worker->pool->n_threads) {
+            exit();
             break;
         }
     }
-    free(worker);
-    exit();
 }
 
 int threadpool_create(n_thread_pool* pool, int num) {
