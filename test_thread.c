@@ -34,7 +34,7 @@ int main() {
     }
 
     for (int i = 0; i < 5; i++) {
-        ///thread_join();
+        thread_join();
     }
     
     /*int pid = thread_create(worker, &t);

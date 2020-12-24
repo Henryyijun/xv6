@@ -139,7 +139,7 @@ void            pushcli(void);
 void            popcli(void);
 void            init_sem(void);
 
-extern  struct share_mem share;
+extern  int share;
 
 // sleeplock.c
 void            acquiresleep(struct sleeplock*);

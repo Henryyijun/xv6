@@ -115,6 +115,9 @@ extern int sys_sem_v(void);
 
 extern int sys_read_share(void);
 extern int sys_write_share(void);
+extern int sys_sem_cond_p(void);
+extern int sys_sem_cond_broadcast(void);
+extern int sys_sem_cond_v(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -149,6 +152,9 @@ static int (*syscalls[])(void) = {
 
 [SYS_read_share]    sys_read_share,
 [SYS_write_share]   sys_write_share,
+[SYS_sem_cond_p]    sys_sem_cond_p,
+[SYS_sem_cond_broadcast]  sys_sem_cond_broadcast,
+[SYS_sem_cond_v]    sys_sem_cond_v,
 };
 
 void

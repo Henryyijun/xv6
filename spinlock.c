@@ -134,7 +134,7 @@ popcli(void)
 //     int line_write;
 // };
 struct sem sems[MAX_SEM_NUM];
-struct share_mem share;
+int share;
 
 
 void init_sem(void) {
@@ -216,3 +216,78 @@ int sys_sem_v() {
   return 0;
 }
 
+int sys_sem_cond_p(void) {
+  int cond, mutex; // cond, m
+  if(argint(0, &cond) < 0) return -1;
+  if(argint(1, &mutex) < 0) return -1;
+  //unlock mutex
+  acquire(&sems[mutex].lock);
+  sems[mutex].resources++;
+  if (sems[mutex].resources < 1) {
+    wakeup1p(&sems[mutex]);
+    sems[mutex].used--;
+  }
+  release(&sems[mutex].lock);
+
+  //block
+  acquire(&sems[cond].lock);
+  sems[cond].resources = 0;
+  if (sems[cond].resources <= 0) {
+    sems[cond].used++;
+    sleep(&sems[cond], &sems[cond].lock);
+    while (1) {
+    
+      if (sems[cond].resources == 1) {
+        
+        goto done;
+      }
+    } 
+  }
+  //release(&sems[cond].lock);
+
+  //lock
+  done:
+    release(&sems[cond].lock);
+    
+    acquire(&sems[mutex].lock);
+    sems[mutex].resources--;
+    if (sems[mutex].resources < 0) {
+      sems[mutex].used++;
+      sleep(&sems[mutex], &sems[mutex].lock);
+    }
+    release(&sems[mutex].lock);
+  
+
+
+  return 1;
+}
+
+int sys_sem_cond_broadcast(void) {
+  int i;
+  if (argint(0, &i) < 0) {
+    return -1;
+  }
+  acquire(&sems[i].lock);
+  sems[i].resources++;
+  if (sems[i].resources < 1) {
+    wakeup(&sems[i]);
+    sems[i].used--;
+  }
+  release(&sems[i].lock);
+  return 0;
+}
+
+int sys_sem_cond_v(void) {
+  int i;
+  if (argint(0, &i) < 0) {
+    return -1;
+  }
+  acquire(&sems[i].lock);
+  sems[i].resources = 1;
+  if (sems[i].resources == 1) {
+    wakeup(&sems[i]);
+    sems[i].used--;
+  }
+  release(&sems[i].lock);
+  return 0;
+}

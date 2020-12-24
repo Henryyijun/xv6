@@ -39,3 +39,6 @@ SYSCALL(sem_v)
 
 SYSCALL(read_share)
 SYSCALL(write_share)
+SYSCALL(sem_cond_p)
+SYSCALL(sem_cond_broadcast)
+SYSCALL(sem_cond_v)

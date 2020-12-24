@@ -20,6 +20,9 @@ struct sem {
   int resources;
   int allocated;
 };
+
+
+
 struct  share_mem{
     char buff[16][256];
     int line_read;

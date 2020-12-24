@@ -24,6 +24,7 @@ typedef struct N_THREADPOOL {
     struct N_JOB* jobs;
     int mutex;
     int cond;
+    int count_mutex;
     int n_threads;
     int count;
 }n_thread_pool;

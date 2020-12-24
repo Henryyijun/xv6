@@ -30,8 +30,10 @@ int sem_create(int);
 int sem_free(int);
 int sem_p(int);
 int sem_v(int);
-
-struct share_mem* read_share(void);
+int sem_cond_v(int);
+int sem_cond_p(int, int);
+int sem_cond_broadcast(int);
+int read_share(void);
 int write_share(int);
 
 // ulib.c

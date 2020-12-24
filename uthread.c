@@ -2,7 +2,7 @@
 #include "user.h"
 
 
-#define NTHREAD 64
+#define NTHREAD 4
 #define PGSIZE 4096
 
 struct {
@@ -41,6 +41,7 @@ void remove_thread(int* pid) {
 
 int thread_create(void (*start_routine)(void*), void* arg) {
     static int first = 1;
+
     if (first) {
         first = 0 ;
         for (int i = 0; i < NTHREAD; i++) {
@@ -49,7 +50,7 @@ int thread_create(void (*start_routine)(void*), void* arg) {
             threads[i].used = 0;
         }
     }
-
+    
     void* stack = malloc(PGSIZE);
     int pid = clone(start_routine, arg, stack);
     add_thread(&pid, stack);

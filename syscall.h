@@ -31,3 +31,7 @@
 
 #define SYS_read_share  28
 #define SYS_write_share 29
+
+#define SYS_sem_cond_p 30
+#define SYS_sem_cond_broadcast 31
+#define SYS_sem_cond_v 32
