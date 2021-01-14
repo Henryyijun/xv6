@@ -2,7 +2,7 @@
 #include "user.h"
 #include "fcntl.h" 
 
-volatile int global = 1;
+volatile int global = 0;
 
 int F(int n) {
     if (n < 0) {
@@ -17,36 +17,21 @@ int F(int n) {
 }
 
 void worker(void* arg) {
-    int id = *(int*)arg;
-    sem_p(id);
-    printf(1, "thread %d is worker. \n", *(int*)arg);
-    //global = F(*(int*)arg);
-    //write(3, "hello\n", 6);
-    sem_v(id);
+    global += F(5);
     exit();
 }
 
 int main() {
-
-    int id = sem_create(1);
+    int t = 1;
+    open("tmp", O_RDWR | O_CREATE);
     for (int i = 0; i < 5; i++) {
-        thread_create(worker, &id);
-    }
-
-    for (int i = 0; i < 5; i++) {
-        thread_join();
+        thread_create(worker, &t);
     }
     
-    /*int pid = thread_create(worker, &t);
     thread_join();
-    printf(1, "thread id = %d\n", pid);
-    printf(1, "global = %d\n", global);
-    t = 6;
-    int pid1 = thread_create(worker, &t);
-    thread_join();
-
-    printf(1, "thread id = %d\n", pid1);
-    printf(1, "global = %d\n", global);*/
+      
+    //printf(1, "thread id = %d . \n", pid);
+    printf(1, "global = %d  \n", global);
     exit();
     return 0;
 }

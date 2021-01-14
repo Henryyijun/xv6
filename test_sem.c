@@ -3,6 +3,7 @@
 #include "fcntl.h" 
 #include "semaphore.h"
 #include "spinlock.h"
+/*
 struct Arg {
     int arg1;
     int arg2;
@@ -70,6 +71,28 @@ int main() {
     //printf(1, "global = %p\n", read_share());
     
     
+    exit();
+    return 0;
+}
+*/
+int s;
+
+void worker(void* arg) {
+    sem_p(s);
+    printf(1, "thread %d is worker\n", *(int*)arg);
+    sem_v(s);
+    exit();
+}
+
+int main() {
+    s = sem_create(1);
+    int t = 1;
+    for (int i = 0; i < 4; i++) {
+        thread_create(worker, &t);
+    }
+    for (int i = 0; i < 4; i++) {
+        thread_join();
+    }
     exit();
     return 0;
 }

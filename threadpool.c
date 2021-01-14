@@ -19,37 +19,26 @@
 
 void worker_thread(void* arg) {
     n_worker* worker = (void*)arg;
-    
     while (1) {
-        
         sem_p(worker->pool->mutex);
         while (worker->pool->jobs == NULL) {
             if (worker->terminate) break;
             sem_cond_p(worker->pool->cond, worker->pool->mutex);
-            
-            //sem_p(worker->pool->mutex);   
-            printf(1, "dasdasdsa");
         }
-        
         n_job* job = worker->pool->jobs;
         LL_REMOVE(job, worker->pool->jobs);
-        
         worker->pool->count++;
         sem_v(worker->pool->mutex);
-
         if (job == NULL) {
             continue;
         }
         job->job_func(job);
-        
         if (worker->pool->count == worker->pool->n_threads) {
             //printf(1,"heeee,the count is %d\n", worker->pool->count);
             break;
         }
-        
     }
     free(worker);
-    
     exit();
 }
 

@@ -38,17 +38,32 @@ void remove_thread(int* pid) {
     }
 }
 
-
 int thread_create(void (*start_routine)(void*), void* arg) {
     static int first = 1;
-
+    static int second = 1;
     if (first) {
-        first = 0 ;
+        first = 0;
         for (int i = 0; i < NTHREAD; i++) {
             threads[i].pid = 0;
             threads[i].ustack = 0;
             threads[i].used = 0;
         }
+    }
+    
+    int check_n = 0;
+    for (int i = 0; i < NTHREAD; i++) {
+        if (threads[i].used == 1) {
+            check_n++;
+        }
+    }
+    
+    if(check_n == NTHREAD){
+        if (second) {
+            second = 0;
+            printf(1, "error! the max pthread num = %d\n", NTHREAD);
+        }
+        return -1;  
+        
     }
     
     void* stack = malloc(PGSIZE);
